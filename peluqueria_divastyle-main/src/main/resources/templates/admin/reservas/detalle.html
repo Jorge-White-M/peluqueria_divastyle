@@ -87,22 +87,24 @@
         </div>
         
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Detalles del Servicio</h5>
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Detalles del Servicio</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Uso de ?. para evitar NullPointerException si el estilista es nulo -->
+                <p><strong>Estilista:</strong> <span th:text="${reserva.estilista?.nombre ?: 'No asignado'}">Estilista</span></p>
+                <p><strong>Especialidad:</strong> <span th:text="${reserva.estilista?.especialidad ?: 'N/A'}">Especialidad</span></p>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Estilista:</strong> <span th:text="${reserva.estilista != null ? reserva.estilista.nombre : 'N/A'}">Estilista</span></p>
-                        <p><strong>Especialidad:</strong> <span th:text="${reserva.estilista != null ? reserva.estilista.especialidad : 'N/A'}">Especialidad</span></p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Servicio:</strong> <span th:text="${reserva.corte != null ? reserva.corte.nombre : 'N/A'}">Servicio</span></p>
-                        <p><strong>Precio:</strong> <span th:text="${reserva.corte != null ? '$' + reserva.corte.precio : 'N/A'}">$20.00</span></p>
-                    </div>
-                </div>
+            <div class="col-md-6">
+                <!-- CAMBIO CLAVE: reserva.corte -> reserva.servicioBelleza -->
+                <p><strong>Servicio:</strong> <span th:text="${reserva.servicioBelleza?.nombre ?: 'Sin servicio'}">Servicio</span></p>
+                <p><strong>Precio:</strong> <span th:text="${reserva.servicioBelleza?.precio != null ? '$' + reserva.servicioBelleza.precio : 'N/A'}">$0.00</span></p>
             </div>
         </div>
+    </div>
+</div>
         
         <div class="card mb-4" th:if="${reserva.comentarios != null && !reserva.comentarios.isEmpty()}">
             <div class="card-header bg-primary text-white">

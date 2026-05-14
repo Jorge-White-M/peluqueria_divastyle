@@ -120,7 +120,7 @@
                                 <td th:text="${#temporals.format(reserva.fechaHoraTurno, 'dd/MM/yyyy HH:mm')}">05/01/2025 15:30</td>
                                 <td th:text="${reserva.cliente != null ? reserva.cliente.nombre : 'N/A'}">Cliente</td>
                                 <td th:text="${reserva.estilista != null ? reserva.estilista.nombre : 'N/A'}">Estilista</td>
-                                <td th:text="${reserva.corte != null ? reserva.corte.nombre : 'N/A'}">Servicio</td>
+                                <td th:text="${reserva.servicioBelleza != null ? reserva.servicioBelleza.nombre : 'N/A'}">Servicio</td>
                                 <td>
                                     <span th:class="${'badge ' + 
                                         (reserva.estado.name() == 'PENDIENTE' ? 'bg-warning' : 

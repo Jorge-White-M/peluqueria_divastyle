@@ -77,10 +77,10 @@
                                 <td th:text="${reserva.estilista != null ? reserva.estilista.nombre : 'N/A'}">Estilista</td>
 
                                 <!-- Mostrar nombre del servicio o "N/A" si es nulo -->
-                                <td th:text="${reserva.servicio != null ? reserva.servicio.nombre : 'N/A'}">Servicio</td>
+                                <td th:text="${reserva.servicioBelleza != null ? reserva.servicioBelleza.nombre : 'N/A'}">Servicio</td>
 
                                 <!-- Mostrar precio del servicio o "N/A" si es nulo -->
-                                <td th:text="${reserva.servicio != null ? '$' + reserva.servicio.precio : 'N/A'}">$20.00</td>
+                                <td th:text="${reserva.servicioBelleza != null ? '$' + reserva.servicioBelleza.precio : 'N/A'}">$20.00</td>
 
                                 <!-- Mostrar estado con color según el valor -->
                                 <td>
@@ -91,18 +91,24 @@
                                     </span>
                                 </td>
 
-                                <!-- Acción para cancelar si el estado es PENDIENTE -->
-                                <td>
+                                <!-- Celda de Acciones actualizada -->
+                                <td class="d-flex gap-2">
+                                    <!-- Botón de Ver Detalle -->
+                                    <a th:href="@{'/reserva/detalle/' + ${reserva.idReserva}}" 
+                                    class="btn btn-info btn-sm text-white">
+                                        <i class="bi bi-eye"></i> Detalle
+                                    </a>
+
+                                    <!-- Tu botón de cancelar existente -->
                                     <a th:if="${reserva.estado.name() == 'PENDIENTE'}" 
-                                       th:href="@{'/reserva/cancelar/' + ${reserva.idReserva}}" 
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('¿Estás seguro de cancelar esta reserva?')">
+                                    th:href="@{'/reserva/cancelar/' + ${reserva.idReserva}}" 
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('¿Estás seguro de cancelar esta reserva?')">
                                         <i class="bi bi-x-circle"></i> Cancelar
                                     </a>
 
-                                    <!-- Si no es pendiente, mostrar texto inactivo -->
-                                    <span th:if="${reserva.estado.name() != 'PENDIENTE'}" class="text-muted">
-                                        No disponible
+                                    <span th:if="${reserva.estado.name() != 'PENDIENTE'}" class="text-muted small">
+                                        Finalizada
                                     </span>
                                 </td>
                             </tr>

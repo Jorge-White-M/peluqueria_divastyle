@@ -163,7 +163,8 @@
                     
                     <div class="row">
                         <div th:each="estilista : ${estilistas}" class="col-md-4 mb-4">
-                            <div class="card barber-card h-100" th:data-id="${estilista.idEstilista}" onclick="seleccionarEstilista(this)">
+                            <!-- ✅ CORREGIDO: onclick llama a seleccionarBarbero -->
+                            <div class="card barber-card h-100" th:data-id="${estilista.idEstilista}" onclick="seleccionarBarbero(this)">
                                 <div class="card-body text-center">
                                     <h5 class="card-title" th:text="${estilista.nombre}">Nombre del Estilista</h5>
                                     <p class="card-text" th:text="${estilista.especialidad}">Especialidad</p>
@@ -280,9 +281,12 @@
 
         // Función para navegar entre pasos
         function siguientePaso(pasoActual, pasoSiguiente) {
-            // Validar que se haya seleccionado algo en el paso actual
             if (pasoActual === 'paso1' && !servicioSeleccionado) {
                 alert('Por favor, selecciona un servicio');
+                return;
+            }
+            if (pasoActual === 'paso2' && !barberoSeleccionado && pasoSiguiente === 'paso3') {
+                alert('Por favor, selecciona una estilista');
                 return;
             }
             if (pasoActual === 'paso3' && !turnoSeleccionado && pasoSiguiente === 'paso4') {
@@ -293,50 +297,43 @@
             document.getElementById(pasoActual).style.display = 'none';
             document.getElementById(pasoSiguiente).style.display = 'block';
 
-            // Si vamos al paso de resumen, actualizar la información
             if (pasoSiguiente === 'paso4') {
                 actualizarResumen();
             }
         }
 
-        // Función para seleccionar un servicio (tarjeta)
+        // Función para seleccionar un servicio
         function seleccionarServicio(elemento) {
-            // Quitar selección anterior
             const servicios = document.querySelectorAll('.service-card');
             servicios.forEach(s => s.classList.remove('selected'));
 
-            // Marcar como seleccionado
             elemento.classList.add('selected');
 
-            // Guardar ID y datos del servicio
             servicioSeleccionado = {
                 id: elemento.getAttribute('data-id'),
                 nombre: elemento.querySelector('.card-title') ? elemento.querySelector('.card-title').textContent.trim() : '',
                 precio: elemento.querySelector('.card-text') ? elemento.querySelector('.card-text').textContent.trim() : ''
             };
 
-            // Llenar campo oculto
             const inputServicio = document.getElementById('servicioId');
             if (inputServicio) inputServicio.value = servicioSeleccionado.id;
         }
 
-        // Función para seleccionar un barbero
+        // ✅ CORREGIDO: función seleccionarBarbero usa el campo estilistaId
         function seleccionarBarbero(elemento) {
-            // Quitar selección anterior
             const barberos = document.querySelectorAll('.barber-card');
             barberos.forEach(b => b.classList.remove('selected'));
 
-            // Marcar como seleccionado
             elemento.classList.add('selected');
 
-            // Guardar ID del barbero
             barberoSeleccionado = {
                 id: elemento.getAttribute('data-id'),
                 nombre: elemento.querySelector('.card-title') ? elemento.querySelector('.card-title').textContent.trim() : ''
             };
 
-            const inputBarbero = document.getElementById('barberoId');
-            if (inputBarbero) inputBarbero.value = barberoSeleccionado.id;
+            // ✅ CORREGIDO: usa estilistaId en lugar de barberoId
+            const inputEstilista = document.getElementById('estilistaId');
+            if (inputEstilista) inputEstilista.value = barberoSeleccionado.id;
         }
 
         // Función para cargar los turnos disponibles
@@ -351,10 +348,8 @@
                 <span class="ms-2">Cargando fechas disponibles...</span>
             `;
 
-            // Limpiar el contenedor de horas
             document.getElementById('horasContainer').innerHTML = '<p class="text-center w-100">Selecciona una fecha primero</p>';
 
-            // Resetear selecciones
             fechaSeleccionada = null;
             horaSeleccionada = null;
             turnoSeleccionado = null;
@@ -374,11 +369,10 @@
                     console.log('Turnos recibidos:', turnos);
 
                     if (!Array.isArray(turnos) || turnos.length === 0) {
-                        fechasContainer.innerHTML = '<p class="text-danger">No hay turnos disponibles para este barbero.</p>';
+                        fechasContainer.innerHTML = '<p class="text-danger">No hay turnos disponibles para esta estilista.</p>';
                         return;
                     }
 
-                    // Agrupar turnos por fecha
                     turnosPorFecha = {};
                     turnos.forEach(turno => {
                         if (turno.fechaHora) {
@@ -392,9 +386,7 @@
                         }
                     });
 
-                    // Crear HTML para mostrar las fechas
                     let html = '';
-
                     for (const fecha in turnosPorFecha) {
                         const fechaObj = new Date(fecha + 'T00:00:00');
                         const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
@@ -411,7 +403,7 @@
                     }
 
                     if (html === '') {
-                        fechasContainer.innerHTML = '<p class="text-danger">No hay fechas disponibles para este barbero.</p>';
+                        fechasContainer.innerHTML = '<p class="text-danger">No hay fechas disponibles para esta estilista.</p>';
                     } else {
                         fechasContainer.innerHTML = html;
                     }
@@ -431,22 +423,17 @@
 
         // Función para seleccionar una fecha
         function seleccionarFecha(elemento) {
-            // Quitar selección anterior
             const fechas = document.querySelectorAll('.date-item');
             fechas.forEach(f => f.classList.remove('selected'));
 
-            // Marcar como seleccionado
             elemento.classList.add('selected');
 
-            // Guardar fecha seleccionada
             fechaSeleccionada = elemento.getAttribute('data-fecha');
             document.getElementById('fechaSeleccionada').value = fechaSeleccionada;
 
-            // Resetear hora seleccionada
             horaSeleccionada = null;
             turnoSeleccionado = null;
 
-            // Cargar horas disponibles para esta fecha
             const horasContainer = document.getElementById('horasContainer');
 
             if (!turnosPorFecha[fechaSeleccionada] || turnosPorFecha[fechaSeleccionada].length === 0) {
@@ -454,27 +441,24 @@
                 return;
             }
 
-            // Ordenar turnos por hora
             const turnosOrdenados = turnosPorFecha[fechaSeleccionada].sort((a, b) => {
                 const horaA = a.fechaHora.split('T')[1];
                 const horaB = b.fechaHora.split('T')[1];
                 return horaA.localeCompare(horaB);
             });
 
-            // Crear HTML para mostrar las horas
             let html = '';
-
             turnosOrdenados.forEach(turno => {
                 const hora = turno.fechaHora.split('T')[1].substring(0, 5);
                 html += `
-            <div class="time-slot" 
-                 data-id="${turno.idTurno}" 
-                 data-hora="${hora}"
-                 data-fecha-hora="${turno.fechaHora}"
-                 onclick="seleccionarHora(this)">
-                ${hora}
-            </div>
-        `;
+                    <div class="time-slot" 
+                         data-id="${turno.idTurno}" 
+                         data-hora="${hora}"
+                         data-fecha-hora="${turno.fechaHora}"
+                         onclick="seleccionarHora(this)">
+                        ${hora}
+                    </div>
+                `;
             });
 
             horasContainer.innerHTML = html;
@@ -482,14 +466,11 @@
 
         // Función para seleccionar una hora
         function seleccionarHora(elemento) {
-            // Quitar selección anterior
             const horas = document.querySelectorAll('.time-slot');
             horas.forEach(h => h.classList.remove('selected'));
 
-            // Marcar como seleccionado
             elemento.classList.add('selected');
 
-            // Guardar información del turno
             turnoSeleccionado = {
                 id: elemento.getAttribute('data-id'),
                 hora: elemento.getAttribute('data-hora')
@@ -501,11 +482,11 @@
             document.getElementById('horaSeleccionada').value = horaSeleccionada;
         }
 
-        // Función para actualizar el resumen
+        // ✅ CORREGIDO: usa resumenEstilista en lugar de resumenBarbero
         function actualizarResumen() {
             document.getElementById('resumenServicio').textContent = servicioSeleccionado ? servicioSeleccionado.nombre : '';
             document.getElementById('resumenPrecio').textContent = servicioSeleccionado ? servicioSeleccionado.precio : '';
-            document.getElementById('resumenBarbero').textContent = barberoSeleccionado ? barberoSeleccionado.nombre : '';
+            document.getElementById('resumenEstilista').textContent = barberoSeleccionado ? barberoSeleccionado.nombre : '';
 
             if (fechaSeleccionada && horaSeleccionada) {
                 const fechaObj = new Date(fechaSeleccionada + 'T00:00:00');
@@ -527,11 +508,9 @@
                 alert('Por favor, completa todos los pasos de la reserva');
                 return;
             }
-
             siguientePaso('paso3', 'paso4');
         }
 
-        // Si hay un ID de cliente en la URL, lo establecemos en el campo oculto
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const clienteId = urlParams.get('clienteId');
@@ -543,22 +522,22 @@
     </script>
 
     <script>
-    // Evita envíos múltiples del formulario
-    document.addEventListener("DOMContentLoaded", function() {
-        const form = document.getElementById("reservaForm");
-        const submitBtn = form.querySelector('button[type="submit"]');
-        let enviado = false;
+        // Evita envíos múltiples del formulario
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("reservaForm");
+            const submitBtn = form.querySelector('button[type="submit"]');
+            let enviado = false;
 
-        form.addEventListener("submit", function(e) {
-            if (enviado) {
-                e.preventDefault(); // Evita segundo envío
-                return;
-            }
-            enviado = true;
-            submitBtn.disabled = true; // Desactiva el botón
-            submitBtn.textContent = "Procesando..."; // Feedback visual
+            form.addEventListener("submit", function(e) {
+                if (enviado) {
+                    e.preventDefault();
+                    return;
+                }
+                enviado = true;
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Procesando...";
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>

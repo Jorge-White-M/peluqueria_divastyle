@@ -318,9 +318,9 @@
                         <select class="form-select form-select-sm" id="estilista">
                             <option value="">Todos los estilistas</option>
                 <option th:each="estilista : ${estilistas}" 
-                    th:value="${estilista.idestilista}"
+                    th:value="${estilista.idEstilista}"
                     th:text="${estilista.nombre}"
-                    th:selected="${estilista.idestilista == filtroestilistaId}">
+                    th:selected="${estilista.idEstilista == filtroEstilistaId}">
                 </option>
                         </select>
                     </div>
@@ -624,7 +624,7 @@
            type="hidden" 
            th:attr="data-turno-id=${turno.idTurno},
                data-turno-fecha=${#temporals.format(turno.fechaHora, 'yyyy-MM-dd''T''HH:mm:ss')},
-               data-turno-estilista-id=${turno.estilista != null ? turno.estilista.idestilista : ''},
+               data-turno-estilista-id=${turno.estilista != null ? turno.estilista.idEstilista : ''},
                data-turno-estilista-nombre=${turno.estilista != null ? turno.estilista.nombre : 'Sin asignar'},
                data-turno-estado=${turno.estado.name()}" />
     </div>
